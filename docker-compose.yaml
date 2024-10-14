@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:17.0
+    restart: "no"
+    ports:
+      - "5432:5432"
+    secrets:
+      - db-password
+    volumes:
+      - type: bind
+        source: ./postgres_data
+        target: "/var/lib/postgresql/data"
+      - ./db/cleandb.sql:/scripts/cleandb.sql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+      POSTGRES_DB: tasktrackerrestapi
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+  pgadmin:
+    image: dpage/pgadmin4:8.12.0
+    restart: "no"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
+      - ./docker/pgadmin/pgpass:/pgadmin4/pgpass
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:80/misc/ping || exit -1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    entrypoint: /bin/sh -c "chmod 600 /pgadmin4/pgpass; /entrypoint.sh;"
+  rabbitmq:
+    image: rabbitmq:4.0.2-management
+    restart: "no"
+    ports:
+      - "5433:5432"
+      - "15672:15672"
+      - "5671:5671"
+      - "5672:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q status
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+  newman:
+    image: postman/newman
+    volumes:
+      - type: bind
+        source: ./postman
+        target: /etc/newman
+    network_mode: host
+    entrypoint: [
+      "newman",
+      "run",
+      "task-tracker-rest-api tests.postman_collection.json",
+      "-e",
+      "http-host.docker.internal-8080.postman_environment.json"
+    ]
+#    depends_on:
+#      app:
+#        condition: service_healthy
+
+volumes:
+  pgadmin_data:
+  rabbitmq_data:
+  postgres-2_data:
+
+secrets:
+  db-password:
+    file: db/password.txt
