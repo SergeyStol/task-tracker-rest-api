@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.sstol.tasktrackerrestapi.features.users.User;
 import dev.sstol.tasktrackerrestapi.infrastructure.api.BadRequestException400;
+import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.NotFoundException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static dev.sstol.tasktrackerrestapi.features.tasks.TaskRoutingMessageTypes.TASK_CREATED_QUEUE_NAME;
 import static dev.sstol.tasktrackerrestapi.features.tasks.TaskRoutingMessageTypes.TASK_UPDATED_QUEUE_NAME;
@@ -26,6 +29,7 @@ import static dev.sstol.tasktrackerrestapi.infrastructure.rabbitmq.RabbitMQConfi
  * 2024-10-10
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TaskService {
 
@@ -58,24 +62,46 @@ public class TaskService {
    }
 
    public List<TaskDto> findAllByOwnerId(Long id) {
-      return repository.findAllByOwner_Id(id)
-        .stream().map(mapper::toDto).toList();
+      List<Task> tasks = repository.findAllByOwner_Id(id);
+      log.info("Found {} tasks", tasks.size());
+      return tasks.stream().map(mapper::toDto).toList();
    }
 
-   public TaskDto findById(Long id) {
-      return repository.findById(id).map(mapper::toDto).get();
+   public TaskDto findById(Long id, Long ownerId) {
+      Task task = repository.findByIdAndOwner_Id(id, ownerId)
+        .orElseThrow(() -> new NotFoundException("Task not found"));
+      return mapper.toDto(task);
    }
 
-   public TaskDto updateCompletedField(Long userId, Long taskId, boolean completed) {
-      Timestamp now = completed ? Timestamp.from(Instant.now()) : null;
-      int rowsUpdated = repository.updateCompletedStatus(userId, taskId, completed, now);
-
-      if (rowsUpdated > 0) {
-         Task task = repository.findById(taskId).orElseThrow(() -> new RuntimeException());
-         return mapper.toDto(task);
-      } else {
-         throw new RuntimeException();
+   public TaskDto patchTask(TaskDto taskDto, Long ownerId) {
+      if (taskDto == null || taskDto.id() == null) {
+         throw new IllegalArgumentException("taskDto or taskDto.id() is null");
       }
+
+      Task task = repository.findByIdAndOwner_Id(taskDto.id(), ownerId)
+        .orElseThrow(() -> new NotFoundException("Can't find task with specified id"));
+
+      if (!Strings.isBlank(taskDto.title())) {
+         task.setTitle(taskDto.title());
+      }
+
+      if (taskDto.description() != null) {
+         task.setDescription(taskDto.description());
+      }
+
+      if (taskDto.completed() != null) {
+         task.setCompleted(taskDto.completed());
+         if (taskDto.completed()) {
+            task.setCompletedDate(Timestamp.from(Instant.now()));
+         }
+      }
+
+      if (taskDto.completedDate() != null) {
+         task.setCompletedDate(taskDto.completedDate());
+      }
+
+      Task savedTask = repository.save(task);
+      return mapper.toDto(savedTask);
    }
 
    @Transactional
@@ -107,6 +133,6 @@ public class TaskService {
    }
 
    public void delete(Long taskId, Long principalId) {
-      repository.deleteTaskByIdAndOwner_Id(taskId, principalId);
+      repository.deleteTaskByIdAndOwnerId(taskId, principalId);
    }
 }

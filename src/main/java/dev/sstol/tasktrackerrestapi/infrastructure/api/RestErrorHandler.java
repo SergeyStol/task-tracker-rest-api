@@ -2,6 +2,7 @@ package dev.sstol.tasktrackerrestapi.infrastructure.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,18 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
            mapper.writeValueAsString(Map.of("message", ex.getMessage())),
            httpHeaders,
            HttpStatus.BAD_REQUEST);
+      } catch (JsonProcessingException e) {
+         throw new InternalServerErrorException500(e);
+      }
+   }
+
+   @ExceptionHandler(NotFoundException.class)
+   public ResponseEntity<String> handleBadRequestException409(NotFoundException ex) {
+      try {
+         return new ResponseEntity<>(
+           mapper.writeValueAsString(Map.of("message", ex.getMessage())),
+           httpHeaders,
+           HttpStatus.NOT_FOUND);
       } catch (JsonProcessingException e) {
          throw new InternalServerErrorException500(e);
       }

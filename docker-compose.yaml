@@ -1,4 +1,27 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: /bin/sh -c "export DB_PASSWORD_FILE=$${cat /run/secrets/db-password} && java org.springframework.boot.loader.launch.JarLauncher"
+    ports:
+      - "8080:8080"
+    environment:
+      - spring.datasource.url=jdbc:postgresql://host.docker.internal:5432/tasktrackerrestapi?createDatabaseIfNotExist=true
+      - spring.datasource.username=postgres
+#      - spring.datasource.password=${DB_PASSWORD_FILE}
+    secrets:
+      - db-password
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "localhost:8080/users" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
   postgres:
     image: postgres:17.0
     restart: "no"
@@ -7,8 +30,8 @@ services:
     secrets:
       - db-password
     volumes:
-      - type: bind
-        source: ./postgres_data
+      - type: volume
+        source: postgres_data
         target: "/var/lib/postgresql/data"
       - ./db/cleandb.sql:/scripts/cleandb.sql
     environment:
@@ -78,9 +101,9 @@ services:
 #        condition: service_healthy
 
 volumes:
+  postgres_data:
   pgadmin_data:
   rabbitmq_data:
-  postgres-2_data:
 
 secrets:
   db-password:

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +33,12 @@ public class AuthRestController {
 
    @PostMapping(path = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
    @ResponseStatus(HttpStatus.OK)
-   void loginForm(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
-      login(new UserLoginDto(email, password) ,response);
+   ResponseEntity<?> loginForm(@ModelAttribute UserLoginDto userLoginDto, HttpServletResponse response) {
+      if (Strings.isBlank(userLoginDto.password()) || Strings.isBlank(userLoginDto.email())) {
+         return ResponseEntity.status(400).body(Map.of("message", "You need to specify email and password."));
+      }
+      login(userLoginDto ,response);
+      return ResponseEntity.ok().build();
    }
 
    @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)

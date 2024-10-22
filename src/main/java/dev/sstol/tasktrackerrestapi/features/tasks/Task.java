@@ -45,7 +45,7 @@ public class Task {
    private Timestamp completedDate;
 
    @Column(name = "completed")
-   private boolean completed = false;
+   private Boolean completed = false;
 
    @Override
    public final boolean equals(Object o) {

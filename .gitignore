@@ -33,7 +33,4 @@ build/
 .vscode/
 
 
-src/main/resources/rsa/id_rsa
-src/main/resources/rsa/id_rsa.pub
-db/password.txt
 postgres_data

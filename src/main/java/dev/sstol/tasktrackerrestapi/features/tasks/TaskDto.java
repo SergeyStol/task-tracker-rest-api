@@ -14,7 +14,7 @@ public record TaskDto(
   Long id,
   String title,
   String description,
-  boolean completed,
+  Boolean completed,
   @JsonInclude(JsonInclude.Include.NON_NULL)
   @JsonFormat(
     shape = JsonFormat.Shape.STRING,
