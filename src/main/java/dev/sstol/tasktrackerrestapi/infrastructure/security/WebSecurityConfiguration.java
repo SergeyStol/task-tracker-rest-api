@@ -24,7 +24,8 @@ public class WebSecurityConfiguration {
    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       return http
         .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-          .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
+          .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "swagger-ui.html", "/v3/api-docs/**").permitAll()
+          .requestMatchers(HttpMethod.POST, "/users", "/auth/login").permitAll()
           .anyRequest().authenticated())
         .csrf(AbstractHttpConfigurer::disable)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -105,10 +105,19 @@
          <artifactId>spring-rabbit-test</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-actuator</artifactId>
+      </dependency>
    </dependencies>
 
    <build>
       <plugins>
+         <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <version>1.4</version>
+         </plugin>
          <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
