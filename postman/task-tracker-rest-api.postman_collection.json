@@ -4,11 +4,11 @@
 		"name": "task-tracker-rest-api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "8538440",
-		"_collection_link": "https://lunar-zodiac-29241.postman.co/workspace/e120cf25-e574-4bed-b04f-1a0991ec43b6/collection/8538440-4ad3cd97-5abc-407c-8ef1-11aa88975654?action=share&source=collection_link&creator=8538440"
+		"_collection_link": "https://lunar-zodiac-29241.postman.co/workspace/task-tracker~e120cf25-e574-4bed-b04f-1a0991ec43b6/collection/8538440-4ad3cd97-5abc-407c-8ef1-11aa88975654?action=share&source=collection_link&creator=8538440"
 	},
 	"item": [
 		{
-			"name": "users (register)",
+			"name": "/auth/register",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -16,105 +16,11 @@
 				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"user2Email@email.com\",\r\n    \"password\": \"123\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/users",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"users"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "users_ (register)",
-			"request": {
-				"auth": {
-					"type": "basic",
-					"basic": [
-						{
-							"key": "password",
-							"value": "password",
-							"type": "string"
-						},
-						{
-							"key": "username",
-							"value": "user",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
 					"mode": "urlencoded",
 					"urlencoded": [
 						{
 							"key": "email",
-							"value": "user1Email@email.com",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "http://localhost:8080/users",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"users"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/users/me",
-			"request": {
-				"auth": {
-					"type": "bearer"
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{host}}:{{port}}/users",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"port": "{{port}}",
-					"path": [
-						"users"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "auth/login",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
-						{
-							"key": "email",
-							"value": "user1Email@email.com",
+							"value": "user1@email.com",
 							"type": "text"
 						},
 						{
@@ -125,12 +31,47 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/auth/login",
-					"protocol": "http",
+					"raw": "{{protocol}}://{{host}}:{{port}}/auth/register",
+					"protocol": "{{protocol}}",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "8080",
+					"port": "{{port}}",
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/auth/login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "email",
+							"value": "user1@email.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
 					"path": [
 						"auth",
 						"login"
@@ -140,7 +81,7 @@
 			"response": []
 		},
 		{
-			"name": "auth/logout",
+			"name": "/auth/logout",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -160,7 +101,43 @@
 			"response": []
 		},
 		{
+			"name": "/users/me",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{host}}:{{port}}/users/me",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "/tasks",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"currentTaskId\", pm.response.json().id);\r",
+							"console.log(pm.response.json().id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -174,12 +151,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/tasks",
-					"protocol": "http",
+					"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+					"protocol": "{{protocol}}",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "8080",
+					"port": "{{port}}",
 					"path": [
 						"tasks"
 					]
@@ -189,12 +166,26 @@
 		},
 		{
 			"name": "/tasks",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var currentDate = new Date();\r",
+							"var formattedDate = currentDate.toISOString();\r",
+							"pm.collectionVariables.set(\"currentDateTime\", formattedDate);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id\": 16,\r\n    \"title\": \"task1User1\",\r\n    \"description\": \"description123\",\r\n    \"completedDate\": \"1728746956770\"\r\n}",
+					"raw": "{\r\n    \"id\": {{currentTaskId}},\r\n    \"title\": \"Title1\",\r\n    \"description\": \"Description1\",\r\n    \"completedDate\": \"{{currentDateTime}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -202,12 +193,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/tasks",
-					"protocol": "http",
+					"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+					"protocol": "{{protocol}}",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "8080",
+					"port": "{{port}}",
 					"path": [
 						"tasks"
 					]
@@ -216,71 +207,13 @@
 			"response": []
 		},
 		{
-			"name": "/tasks",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/tasks",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"tasks"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/tasks/1",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/tasks",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"tasks"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/tasks/1",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/tasks/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"tasks",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/tasks",
+			"name": "/tasks/{id}",
 			"request": {
 				"method": "PATCH",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id\": 6,\r\n    \"completed\": true\r\n}",
+					"raw": "{\r\n    \"id\": {{currentTaskId}},\r\n    \"title\": \"Title1Updated\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -288,14 +221,74 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/tasks",
-					"protocol": "http",
+					"raw": "{{protocol}}://{{host}}:{{port}}/tasks/{{currentTaskId}}",
+					"protocol": "{{protocol}}",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "8080",
+					"port": "{{port}}",
+					"path": [
+						"tasks",
+						"{{currentTaskId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
 					"path": [
 						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{host}}:{{port}}/tasks/{{currentTaskId}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"tasks",
+						"{{currentTaskId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/{id}",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{host}}:{{port}}/tasks/{{currentTaskId}}",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"tasks",
+						"{{currentTaskId}}"
 					]
 				}
 			},

@@ -36,7 +36,6 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
    @ExceptionHandler(BadRequestException400.class)
    public ResponseEntity<String> handleBadRequestException409(BadRequestException400 ex) {
       try {
-
          return new ResponseEntity<>(
            mapper.writeValueAsString(Map.of("message", ex.getMessage())),
            httpHeaders,

@@ -1,6 +1,7 @@
 package dev.sstol.tasktrackerrestapi.features.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.sstol.tasktrackerrestapi.features.auth.RegisterNewUserDto;
 import dev.sstol.tasktrackerrestapi.infrastructure.jwt.JwtTokenService;
 import dev.sstol.tasktrackerrestapi.infrastructure.api.AlreadyExistsException409;
 import dev.sstol.tasktrackerrestapi.infrastructure.api.BadRequestException400;
@@ -34,15 +35,15 @@ public class UserService implements UserDetailsService {
    private final PasswordEncoder passwordEncoder;
    private final RabbitTemplate rabbitTemplate;
 
-   public String saveAndGetToken(NewUserDto newUserDto) {
-      if (Strings.isBlank(newUserDto.email())) {
+   public String saveAndGetToken(RegisterNewUserDto registerNewUserDto) {
+      if (Strings.isBlank(registerNewUserDto.email())) {
          throw new BadRequestException400("Please, specify owner email.");
       }
-      if (Strings.isBlank(newUserDto.password())) {
+      if (Strings.isBlank(registerNewUserDto.password())) {
          throw new BadRequestException400("Please, specify owner password.");
       }
 
-      var user = new User(newUserDto.email(), passwordEncoder.encode(newUserDto.password()));
+      var user = new User(registerNewUserDto.email(), passwordEncoder.encode(registerNewUserDto.password()));
 
       try {
          repo.save(user);

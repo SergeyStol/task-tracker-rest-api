@@ -8,226 +8,10 @@
 	},
 	"item": [
 		{
-			"name": "/users, /auth",
+			"name": "/auth",
 			"item": [
 				{
-					"name": "/users (register) -> 200",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Token cookie is set\", function () {\r",
-									"    var cookies = pm.cookies.toObject();\r",
-									"    pm.expect(cookies).to.have.property('token');\r",
-									"    pm.expect(cookies.token).to.be.a('string');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user1Email@email.com\",\r\n    \"password\": \"123\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/users (register) -> 409 (user exists))",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 409\", function () {\r",
-									"    pm.response.to.have.status(409);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains 'message' field\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData).to.have.property('message');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains correct description\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.message).to.include('exists');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user1Email@email.com\",\r\n    \"password\": \"123\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/users (register) -> 400 (no password))",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 400\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains 'message' field\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData).to.have.property('message');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains right description\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.message).to.include('password');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user1Email@email.com\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/users (register) -> 400 (no email))",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 400\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains 'message' field\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData).to.have.property('message');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains right description\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.message).to.include('email');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"password\": \"123\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/users_ (register) -> 200",
+					"name": "/auth/register -> 200",
 					"event": [
 						{
 							"listen": "test",
@@ -259,32 +43,33 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user2Email@email.com",
+									"value": "user1Email@email.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "12345",
+									"value": "123",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/register",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"users"
+								"auth",
+								"register"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "/users_ (register) -> 409 (user exists))",
+					"name": "/auth/register -> 409 (user exists))",
 					"event": [
 						{
 							"listen": "test",
@@ -320,32 +105,33 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user2Email@email.com",
+									"value": "user1Email@email.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "12345",
+									"value": "123",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/register",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"users"
+								"auth",
+								"register"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "/users_ (register) -> 400 (no password))",
+					"name": "/auth/register -> 400 (no password))",
 					"event": [
 						{
 							"listen": "test",
@@ -381,33 +167,34 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user2Email@email.com",
+									"value": "user1Email@email.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "12345",
+									"value": "123",
 									"type": "text",
 									"disabled": true
 								}
 							]
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/register",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"users"
+								"auth",
+								"register"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "/users_ (register) -> 400 (no email))",
+					"name": "/auth/register -> 400 (no email))",
 					"event": [
 						{
 							"listen": "test",
@@ -443,80 +230,34 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user2Email@email.com",
+									"value": "user1Email@email.com",
 									"type": "text",
 									"disabled": true
 								},
 								{
 									"key": "password",
-									"value": "12345",
+									"value": "123",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users",
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/register",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}",
 							"path": [
-								"users"
+								"auth",
+								"register"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "/users/me -> 200",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains email field\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData).to.have.property('email');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body contains right email field value (email of the current user)\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.email).to.eq('user2Email@email.com');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/users/me",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"users",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/auth/login_ -> 200",
+					"name": "/auth/login -> 200",
 					"event": [
 						{
 							"listen": "test",
@@ -571,55 +312,6 @@
 					"response": []
 				},
 				{
-					"name": "/auth/login -> 200",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Token cookie is set\", function () {\r",
-									"    var cookies = pm.cookies.toObject();\r",
-									"    pm.expect(cookies).to.have.property('token');\r",
-									"    pm.expect(cookies.token).to.be.a('string');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user1Email@email.com\",\r\n    \"password\": 123\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "/auth/login -> 403 (wrong email)",
 					"event": [
 						{
@@ -639,13 +331,19 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"wrongEmail@email.com\",\r\n    \"password\": \"123\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "password",
+									"value": "123",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "wrongEmail@email.com",
+									"type": "text"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
@@ -682,13 +380,19 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user1Email@email.com\",\r\n    \"password\": \"wrongPassword\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user1Email@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "wrongPassword",
+									"type": "text"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
@@ -736,13 +440,14 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"password\": 123\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "password",
+									"value": "123",
+									"type": "text"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
@@ -790,13 +495,14 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user1Email@email.com\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user1Email@email.com",
+									"type": "text"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
@@ -848,7 +554,182 @@
 					"response": []
 				},
 				{
-					"name": "/users/me -> 403 (not authenticated)",
+					"name": "/auth/logout -> 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/logout",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/users",
+			"item": [
+				{
+					"name": "/auth/login -> 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token cookie is set\", function () {\r",
+									"    var cookies = pm.cookies.toObject();\r",
+									"    pm.expect(cookies).to.have.property('token');\r",
+									"    pm.expect(cookies.token).to.be.a('string');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user1Email@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users/me -> 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains email field\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('email');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains right email field value (email of the current user)\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.email).to.eq('user1Email@email.com');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/users/me",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/auth/logout -> 204",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/logout",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/users/me -> 403",
 					"event": [
 						{
 							"listen": "test",
@@ -929,13 +810,19 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user1Email@email.com\",\r\n    \"password\": 123\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "user1Email@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123",
+									"type": "text"
 								}
-							}
+							]
 						},
 						"url": {
 							"raw": "{{protocol}}://{{host}}:{{port}}/auth/login",
