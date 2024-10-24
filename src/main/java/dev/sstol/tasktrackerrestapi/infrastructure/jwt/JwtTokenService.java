@@ -1,6 +1,7 @@
 package dev.sstol.tasktrackerrestapi.infrastructure.jwt;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -13,6 +14,7 @@ import java.time.Instant;
  * @author Sergey Stol
  * 2024-10-08
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtTokenService {
@@ -30,7 +32,9 @@ public class JwtTokenService {
         .claim("userId", userId)
         .claim("userEmail", userEmail)
         .build();
-      return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+      String tokenValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+      log.info("Generated new jwt token for user={}", userEmail);
+      return tokenValue;
    }
 
    public JwtDecodedToken getDecodedToken(String encodedToken) {

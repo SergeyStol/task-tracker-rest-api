@@ -2,21 +2,16 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    entrypoint: /bin/bash -c "export SPRING_DATASOURCE_PASSWORD=$(cat /run/secrets/db-password) && java org.springframework.boot.loader.launch.JarLauncher"
+      dockerfile: uber-jar.Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - spring.datasource.url=jdbc:postgresql://postgres:5432/tasktrackerrestapi?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tasktrackerrestapi_tests?createDatabaseIfNotExist=true
       - spring.datasource.username=postgres
-      - spring.rabbitmq.host=rabbitmq
+      - SPRING_RABBITMQ_HOST=rabbitmq
       - spring.rabbitmq.password=guest
       - spring.rabbitmq.username=guest
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "localhost:8080/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - spring.jpa.hibernate.ddl-auto=create-drop
     secrets:
       - db-password
     depends_on:
@@ -26,20 +21,16 @@ services:
         condition: service_healthy
   postgres:
     image: postgres:17.0
-    restart: "no"
     ports:
       - "5432:5432"
+      - "5671:5671"
+      - "5672:5672"
     secrets:
       - db-password
-    volumes:
-      - type: volume
-        source: postgres_data
-        target: "/var/lib/postgresql/data"
-      - ./db/cleandb.sql:/scripts/cleandb.sql
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
-      POSTGRES_DB: tasktrackerrestapi
+      POSTGRES_DB: tasktrackerrestapi_tests
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     healthcheck:
       test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
@@ -48,15 +39,9 @@ services:
       start_period: 10s
       retries: 5
   rabbitmq:
-    image: rabbitmq:4.0.2-management
-    restart: "no"
+    image: rabbitmq:4.0.2
     ports:
       - "5433:5432"
-      - "15672:15672"
-      - "5671:5671"
-      - "5672:5672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: rabbitmq-diagnostics -q status
       interval: 10s
@@ -69,7 +54,6 @@ services:
       - type: bind
         source: ./postman
         target: /etc/newman
-    network_mode: host
     entrypoint: [
       "newman",
       "run",
@@ -77,11 +61,14 @@ services:
       "-e",
       "http-host.docker.internal-8080.postman_environment.json"
     ]
+    depends_on:
+      app:
+        condition: service_healthy
 
 volumes:
-  postgres_data:
-  pgadmin_data:
-  rabbitmq_data:
+  postgres_data_tests:
+  pgadmin_data_tests:
+  rabbitmq_data_tests:
 
 secrets:
   db-password:
