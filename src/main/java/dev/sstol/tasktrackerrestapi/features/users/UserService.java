@@ -46,9 +46,13 @@ public class UserService implements UserDetailsService {
       var user = new User(registerNewUserDto.email(), passwordEncoder.encode(registerNewUserDto.password()));
 
       try {
-         repo.save(user);
+         log.info("User={}, trying to save to db ...", user.getEmail());
+         User savedUser = repo.save(user);
+         log.info("User {} saved to database. id={} has been assigned", savedUser.getEmail(), savedUser.getId());
+         log.info("Sending notification to other services (user={})", user.getEmail());
          rabbitTemplate.convertAndSend(EXCHANGE_NAME, "USER_CREATED",
            objectMapper.writeValueAsString(mapper.toDto(user)));
+         log.info("Notification had been sent successfully (user={})", savedUser.getEmail());
       } catch (DataIntegrityViolationException e) {
          throw new AlreadyExistsException409("User already exists", e);
       } catch (Exception e) {
