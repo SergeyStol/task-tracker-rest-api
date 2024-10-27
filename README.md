@@ -10,19 +10,19 @@
 
 # Downloading
 ```shell
-git clone git@github.com:sstol/task-tracker-rest-api
+git clone https://github.com/SergeyStol/task-tracker-rest-api.git
 cd task-tracker-rest-api
 ```
 
 # Running for development
 1. Run environment
    ```shell
-    docker-compose up postgres rabbitmq
+   docker compose up -d postgres rabbitmq
    ```
 2. Run application in your IDE
 3. Run smoke tests
    ```shell
-    docker-compose up newman
+   docker compose up newman --no-deps
    ```
 The last line you should see in your console - `newman-1 exited with code 0`.
 It means, smoke tests had been passed successfully.
@@ -36,9 +36,9 @@ Have fun!
 # Running for testing
 Execute command:
 ```shell
-docker-compose app --build
+docker compose app --build
 ```
-It starts the application inside docker container against database and message broker.
+It will start the application inside docker container with database and message broker.
 To check that the application works correctly, see [Healthcheck](#Healthcheck)
 
 # Healthcheck
@@ -46,8 +46,7 @@ To check that the application works correctly, see [Healthcheck](#Healthcheck)
 curl loclahost:8080/actuator/health
 ```
 You should see `{"status":"UP","groups":["liveness","readiness"]}`
-which means - the application is working correctly.
-
+if so, the application is working correctly.
 
 # Testing
 
@@ -60,7 +59,13 @@ To run unit tests:
 ## Automatic Smoke Tests (newman)
 Run smoke tests using docker compose:
 ```shell
-docker-compose -f docker-compose-tests.yaml up newman
+docker compose -f docker-compose-tests.yaml up --build
+```
+
+# Clean database
+To clean database execute
+```shell
+docker compose exec postgres psql -U postgres -d tasktrackerrestapi -f ./scripts/cleandb.sql
 ```
 
 # Set up for production
@@ -74,3 +79,7 @@ docker-compose -f docker-compose-tests.yaml up newman
    for ex.
    ```shell
    echo -n 12345 > ./db/password.txt
+
+# Before push new commit
+1. If you add a new entity or change one, check that you add changes to script `./scripts/cleandb.sql`.
+2. run script `before-push.sh`

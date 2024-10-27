@@ -13,8 +13,10 @@ RUN mv target/$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceS
 FROM bellsoft/liberica-openjre-alpine:21.0.5-11
 
 ENV SPRING_DATASOURCE_URL="jdbc:postgresql://host.docker.internal:5432/tasktrackerrestapi?createDatabaseIfNotExist=true"
+#ENV SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/tasktrackerrestapi?createDatabaseIfNotExist=true" --for Linux
 ENV SPRING_DATASOURCE_USERNAME="postgres"
 ENV SPRING_RABBITMQ_HOST="host.docker.internal"
+#ENV SPRING_RABBITMQ_HOST="localhost" --for Linux
 ENV SPRING_RABBITMQ_USERNAME="guest"
 ENV SPRING_RABBITMQ_PASSWORD="guest"
 
