@@ -69,7 +69,6 @@ services:
       - type: bind
         source: ./postman
         target: /etc/newman
-    network_mode: host
     entrypoint: [
       "newman",
       "run",
@@ -77,7 +76,11 @@ services:
       "-e",
       "http-host.docker.internal-8080.postman_environment.json"
     ]
-
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      app:
+        condition: service_healthy
 volumes:
   postgres_data:
   pgadmin_data:

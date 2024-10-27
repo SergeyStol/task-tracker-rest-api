@@ -59,8 +59,10 @@ services:
       "run",
       "task-tracker-rest-api tests.postman_collection.json",
       "-e",
-      "http-host.docker.internal-8080.postman_environment.json"
+      "http-app-8080.postman_environment.json"
     ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       app:
         condition: service_healthy
