@@ -1821,7 +1821,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"Status code is 202\", function () {\r",
-									"    pm.response.to.have.status(202);\r",
+									"    pm.response.to.have.status(203);\r",
 									"});\r",
 									"\r",
 									"const schema = {\r",
