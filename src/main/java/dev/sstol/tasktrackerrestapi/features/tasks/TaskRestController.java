@@ -3,9 +3,9 @@ package dev.sstol.tasktrackerrestapi.features.tasks;
 import dev.sstol.tasktrackerrestapi.features.users.User;
 import dev.sstol.tasktrackerrestapi.infrastructure.api.BadRequestException400;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,16 +14,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/tasks")
 @AllArgsConstructor
@@ -31,14 +28,17 @@ public class TaskRestController {
    private final TaskService service;
 
    @GetMapping
+   @ResponseStatus(HttpStatus.OK)
    List<TaskDto> getTasks(Authentication authentication) {
       User principal = (User) authentication.getPrincipal();
       return service.findAllByOwnerId(principal.getId());
    }
 
    @GetMapping("/{id}")
-   TaskDto getTask(@PathVariable Long id) {
-      return service.findById(id);
+   @ResponseStatus(HttpStatus.OK)
+   TaskDto getTask(@PathVariable Long id, Authentication authentication) {
+      User principal = (User) authentication.getPrincipal();
+      return service.findById(id, principal.getId());
    }
 
    @PostMapping
@@ -53,7 +53,6 @@ public class TaskRestController {
 
    @PutMapping
    @ResponseStatus(HttpStatus.ACCEPTED)
-
    TaskDto updateTask(@RequestBody TaskDto taskDto) {
       if (taskDto.id() == null) {
          throw new BadRequestException400("You need to specify id");
@@ -61,18 +60,24 @@ public class TaskRestController {
       return service.updateTask(taskDto);
    }
 
-   @PatchMapping
+   @PatchMapping("/{id}")
    @ResponseStatus(HttpStatus.ACCEPTED)
-   TaskDto updateCompletedStatus(@RequestBody TaskDto taskDto, Authentication authentication) {
+   TaskDto patchTask(@PathVariable Long id,
+                     @RequestBody TaskDto taskDto,
+                     Authentication authentication) {
+      if (!id.equals(taskDto.id())) {
+         throw new BadRequestException400("Task id in the path isn't equal task id in the request body");
+      }
       User principal = (User) authentication.getPrincipal();
-      return service.updateCompletedField(principal.getId(), taskDto.id(), taskDto.completed());
+      return service.patchTask(taskDto, principal.getId());
    }
 
    @DeleteMapping("/{id}")
    @ResponseStatus(HttpStatus.NO_CONTENT)
    void delete(@PathVariable Long id, Authentication authentication) {
-      Long principalId = ((User) authentication.getPrincipal()).getId();
-      service.delete(id, principalId);
+      User principal = (User) authentication.getPrincipal();
+      log.info("User email={} userId={}: Delete task taskId={}", principal.getEmail(), principal.getId(), id);
+      service.delete(id, principal.getId());
    }
 
 }

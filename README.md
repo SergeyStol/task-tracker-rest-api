@@ -1,62 +1,52 @@
 # task-tracker-rest-api
 
 
-# Getting Started
-## Prerequisites
-* Java JDK version 23 (https://jdk.java.net/23/)
+# Prerequisites
+* Java JDK version 21 (https://jdk.java.net/java-se-ri/21)
 * `git` (https://git-scm.org/)
 * `docker` (https://docker.io/)
 * `docker-compose` (https://docs.docker.com/compose/install/)
 * curl
 
-## Prerequisites for 
-
-## Installing
+# Downloading
 ```shell
-git clone git@github.com:sstol/task-tracker-rest-api
+git clone https://github.com/SergeyStol/task-tracker-rest-api.git
 cd task-tracker-rest-api
-./mvnw clean package
 ```
 
-# Running
-
-## Set up
-Before running the application, there are a few things you need to set up first:
-1. generate key pair (public and private) for jwt token creation; for this proposes use script `./src/resources/rsa/generate.sh` or run manually
+# Running for development
+1. Run environment
    ```shell
-   openssl genpkey -algorithm RSA -out ./id_rsa -pkeyopt rsa_keygen_bits:2048
-   openssl rsa -in ./id_rsa -pubout -out ./id_rsa.pub
+   docker compose up -d postgres rabbitmq
    ```
-   Put files `id_rsa` and `id_rsa.pub` inside folder `./src/resources/rsa`.
-2. create file with a password from the database (the file should contain just the password) - `./db/password.txt`
-   for ex.
+2. Run application in your IDE
+3. Run smoke tests
    ```shell
-   echo -n 12345 > ./db/password.txt
+   docker compose up newman --no-deps
    ```
+The last line you should see in your console - `newman-1 exited with code 0`.
+It means, smoke tests had been passed successfully.
+In the table above the last line you can watch some statistic.
 
-## Running locally
+Congratulations! The application is working correctly and against database and message broker.
 
-### using maven
-To run the service from the development machine against already started PostgreSQL, use
-```
-./mvnw spring-boot:run
-```
+Now, you can execute `docker-compose down newman` and start a development.
+Have fun!
 
-### using docker-compose
-To run the service against a locally-running version of PostgreSQL using docker-compose, execute the following command:
+# Running for testing
+Execute command:
 ```shell
-docker-compose up app
+docker compose app --build
 ```
+It will start the application inside docker container with database and message broker.
+To check that the application works correctly, see [Healthcheck](#Healthcheck)
 
-This will launch PostgreSQL locally on port 5432 first and after will run task-tracker-rest-api service listening on `http://localhost:8080`.
-
-
-## Healthcheck
-
-Check the service is healthy:
+# Healthcheck
 ```shell
-curl http://localhost:8080/users/me
+curl loclahost:8080/actuator/health
 ```
+You should see `{"status":"UP","groups":["liveness","readiness"]}`
+if so, the application is working correctly.
 
 # Testing
 
@@ -67,18 +57,29 @@ To run unit tests:
 ```
 
 ## Automatic Smoke Tests (newman)
-You should clean database each time before run integration tests.
+Run smoke tests using docker compose:
 ```shell
-dc exec postgres psql -U postgres -d tasktrackerrestapi -f ./scripts/cleandb.sql
-```
-Run integration tests using docker compose:
-```shell
-docker-compose up newman
-```
-or using docker directly
-```shell
-docker run --mount type=bind,src="$(pwd)"/postman,dst=/etc/newman --network host postman/newman run "task-tracker-rest-api tests.postman_collection.json" -e http-host.docker.internal-8080.postman_environment.json
+docker compose -f docker-compose-tests.yaml up --build
 ```
 
+# Clean database
+To clean database execute
+```shell
+docker compose exec postgres psql -U postgres -d tasktrackerrestapi -f ./scripts/cleandb.sql
+```
 
+# Set up for production
+1. generate key pair (public and private) for jwt token creation; for this proposes use script `./src/resources/rsa/generate.sh` or run manually
+   ```shell
+   openssl genpkey -algorithm RSA -out ./id_rsa -pkeyopt rsa_keygen_bits:2048
+   openssl rsa -in ./id_rsa -pubout -out ./id_rsa.pub
+   ```
+   Put files `id_rsa` and `id_rsa.pub` inside folder `./src/resources/rsa`.
+2. create file with a password from the database (the file should contain just the password) - `./db/password.txt`
+   for ex.
+   ```shell
+   echo -n 12345 > ./db/password.txt
 
+# Before push new commit
+1. If you add a new entity or change one, check that you add changes to script `./scripts/cleandb.sql`.
+2. run script `before-push.sh`

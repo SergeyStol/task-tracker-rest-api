@@ -1,8 +1,8 @@
-package dev.sstol.tasktrackerrestapi.infrastructure.jwt;
+package dev.sstol.tasktrackerrestapi.infrastructure.security;
 
-import dev.sstol.tasktrackerrestapi.features.users.User;
-import dev.sstol.tasktrackerrestapi.features.users.UserDto;
 import dev.sstol.tasktrackerrestapi.features.users.UserService;
+import dev.sstol.tasktrackerrestapi.infrastructure.jwt.JwtDecodedToken;
+import dev.sstol.tasktrackerrestapi.infrastructure.jwt.JwtTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -16,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Collections;
 
 /**
@@ -33,14 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    public void doFilterInternal(HttpServletRequest request,
                         HttpServletResponse response,
                         FilterChain chain) throws IOException, ServletException {
-      if ("POST".equalsIgnoreCase(request.getMethod())
-          && ("/users".equalsIgnoreCase(request.getServletPath()))
-         || ("/auth/login".equalsIgnoreCase(request.getServletPath()))
-      ) {
-         chain.doFilter(request, response);
-         return;
-      }
-
       Cookie[] cookies = request.getCookies();
       String token = null;
       if (cookies != null) {

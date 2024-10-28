@@ -1,6 +1,5 @@
 package dev.sstol.tasktrackerrestapi.infrastructure.security;
 
-import dev.sstol.tasktrackerrestapi.infrastructure.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,10 +22,11 @@ public class WebSecurityConfiguration {
    @Bean
    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       return http
-        .authorizeHttpRequests(request -> request
-          .requestMatchers(HttpMethod.POST, "/users", "/auth/login").permitAll()
-          .anyRequest().authenticated()
-        )
+        .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+          .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "swagger-ui.html", "/v3/api-docs/**").permitAll()
+          .requestMatchers(HttpMethod.GET, "/actuator/**").permitAll()
+          .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
+          .anyRequest().authenticated())
         .csrf(AbstractHttpConfigurer::disable)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 //        .csrf((csrf) -> csrf.ignoringRequestMatchers("/users"))

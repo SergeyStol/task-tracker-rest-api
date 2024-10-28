@@ -27,7 +27,7 @@
       <url/>
    </scm>
    <properties>
-      <java.version>23</java.version>
+      <java.version>21</java.version>
    </properties>
    <dependencies>
       <dependency>
@@ -38,15 +38,6 @@
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-web</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.flywaydb</groupId>
-         <artifactId>flyway-core</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.flywaydb</groupId>
-         <artifactId>flyway-database-postgresql</artifactId>
-      </dependency>
-
       <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-devtools</artifactId>
@@ -106,10 +97,19 @@
          <artifactId>spring-rabbit-test</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-actuator</artifactId>
+      </dependency>
    </dependencies>
 
    <build>
       <plugins>
+         <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <version>1.4</version>
+         </plugin>
          <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
@@ -127,6 +127,9 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <version>3.8.1</version>
             <configuration>
+               <compilerArgs>
+                  <arg>-parameters</arg>
+               </compilerArgs>
                <annotationProcessorPaths>
                   <path>
                      <groupId>org.projectlombok</groupId>
