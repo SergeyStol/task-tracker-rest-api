@@ -1,11 +1,9 @@
 package dev.sstol.tasktrackerrestapi.features.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.sstol.tasktrackerrestapi.features.auth.RegisterNewUserDto;
-import dev.sstol.tasktrackerrestapi.infrastructure.jwt.JwtTokenService;
-import dev.sstol.tasktrackerrestapi.infrastructure.api.AlreadyExistsException409;
-import dev.sstol.tasktrackerrestapi.infrastructure.api.BadRequestException400;
-import dev.sstol.tasktrackerrestapi.infrastructure.api.InternalServerErrorException500;
+import dev.sstol.tasktrackerrestapi.features.auth.NewUserDto;
+import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.NotFoundException;
+import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.AlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -29,21 +27,15 @@ import static dev.sstol.tasktrackerrestapi.infrastructure.rabbitmq.RabbitMQConfi
 public class UserService implements UserDetailsService {
 
    private final UserRepository repo;
-   private final JwtTokenService jwtTokenService;
    private final UserMapper mapper;
    private final ObjectMapper objectMapper;
    private final PasswordEncoder passwordEncoder;
    private final RabbitTemplate rabbitTemplate;
 
-   public String saveAndGetToken(RegisterNewUserDto registerNewUserDto) {
-      if (Strings.isBlank(registerNewUserDto.email())) {
-         throw new BadRequestException400("Please, specify owner email.");
-      }
-      if (Strings.isBlank(registerNewUserDto.password())) {
-         throw new BadRequestException400("Please, specify owner password.");
-      }
+   public User save(NewUserDto newUserDto) {
+      validate(newUserDto);
 
-      var user = new User(registerNewUserDto.email(), passwordEncoder.encode(registerNewUserDto.password()));
+      var user = new User(newUserDto.email(), passwordEncoder.encode(newUserDto.password()));
 
       try {
          log.info("User={}, trying to save to db ...", user.getEmail());
@@ -53,13 +45,23 @@ public class UserService implements UserDetailsService {
          rabbitTemplate.convertAndSend(EXCHANGE_NAME, "USER_CREATED",
            objectMapper.writeValueAsString(mapper.toDto(user)));
          log.info("Notification had been sent successfully (user={})", savedUser.getEmail());
+         return savedUser;
       } catch (DataIntegrityViolationException e) {
-         throw new AlreadyExistsException409("User already exists", e);
+         log.warn(e.getMessage());
+         throw new AlreadyExistsException("User already exists", e);
       } catch (Exception e) {
          log.warn(e.getMessage());
-         throw new InternalServerErrorException500(e);
+         throw new RuntimeException(e);
       }
-      return jwtTokenService.getToken(user.getUsername(), user.getId(), user.getEmail());
+   }
+
+   private void validate(NewUserDto newUserDto) {
+      if (Strings.isBlank(newUserDto.email())) {
+         throw new IllegalArgumentException("Email is empty or absent.");
+      }
+      if (Strings.isBlank(newUserDto.password())) {
+         throw new IllegalArgumentException("Password is empty or absent.");
+      }
    }
 
    public UserDto getUserByEmail(String email) {
@@ -70,7 +72,8 @@ public class UserService implements UserDetailsService {
    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
       User user = repo.findByEmailIgnoreCase(email);
       if (user == null) {
-         throw new UsernameNotFoundException("User details not found for " + email);
+         log.warn("Can't find user with email/username = {}", email);
+         throw new NotFoundException("User details not found for " + email);
       }
       return user;
    }

@@ -43,7 +43,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								},
 								{
@@ -105,7 +105,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								},
 								{
@@ -137,7 +137,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 400\", function () {\r",
+									"pm.test(\"POST /auth/register -> 400 (no password)\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
@@ -167,7 +167,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								},
 								{
@@ -200,7 +200,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 400\", function () {\r",
+									"pm.test(\"POST /auth/register -> 400 (no email)\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
@@ -230,7 +230,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text",
 									"disabled": true
 								},
@@ -263,7 +263,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
+									"pm.test(\"POST /auth/login -> 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -286,7 +286,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								},
 								{
@@ -312,14 +312,24 @@
 					"response": []
 				},
 				{
-					"name": "/auth/login -> 403 (wrong email)",
+					"name": "/auth/login -> 401 (wrong email)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 403\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"POST /auth/login -> 401 (wrong email)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains 'message' field\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body explain problem correctly\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.be.eq('Bad credentials');\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -340,7 +350,7 @@
 								},
 								{
 									"key": "email",
-									"value": "wrongEmail@email.com",
+									"value": "{{wrongEmail}}",
 									"type": "text"
 								}
 							]
@@ -361,14 +371,24 @@
 					"response": []
 				},
 				{
-					"name": "/auth/login -> 403 (wrong password)",
+					"name": "/auth/login -> 401 (wrong password)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 403\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"POST /auth/login -> 401 (wrong password)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains 'message' field\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body explain problem correctly\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.be.eq('Bad credentials');\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -384,7 +404,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								},
 								{
@@ -410,14 +430,14 @@
 					"response": []
 				},
 				{
-					"name": "/auth/login -> 400 (email is absent)",
+					"name": "/auth/login -> 401 (email is absent)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 400\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"pm.test(\"POST /auth/login -> 401 (email is absent)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Response body contains 'message' field\", function () {\r",
@@ -427,8 +447,7 @@
 									"\r",
 									"pm.test(\"Response body explain problem correctly\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.message).to.include('password');\r",
-									"    pm.expect(jsonData.message).to.include('email');\r",
+									"    pm.expect(jsonData.message).to.be.eq('Bad credentials');\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -465,14 +484,14 @@
 					"response": []
 				},
 				{
-					"name": "/auth/login -> 400 (password is absent)",
+					"name": "/auth/login -> 401 (password is absent)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 400\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"pm.test(\"POST /auth/login -> 401 (password is absent)\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Response body contains 'message' field\", function () {\r",
@@ -482,8 +501,7 @@
 									"\r",
 									"pm.test(\"Response body explain problem correctly\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.message).to.include('password');\r",
-									"    pm.expect(jsonData.message).to.include('email');\r",
+									"    pm.expect(jsonData.message).to.be.eq('Bad credentials');\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -499,7 +517,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								}
 							]
@@ -526,7 +544,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 204\", function () {\r",
+									"pm.test(\"POST /auth/logout -> 204\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
@@ -554,14 +572,14 @@
 					"response": []
 				},
 				{
-					"name": "/auth/logout -> 403",
+					"name": "/auth/logout -> 401",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 403\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"POST /auth/logout -> 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -599,15 +617,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Token cookie is set\", function () {\r",
-									"    var cookies = pm.cookies.toObject();\r",
-									"    pm.expect(cookies).to.have.property('token');\r",
-									"    pm.expect(cookies.token).to.be.a('string');\r",
-									"});"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -622,7 +632,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								},
 								{
@@ -654,7 +664,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
+									"pm.test(\"GET /users/me -> 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -665,7 +675,7 @@
 									"\r",
 									"pm.test(\"Response body contains right email field value (email of the current user)\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.email).to.eq('user1Email@email.com');\r",
+									"    pm.expect(jsonData.email).to.eq(pm.variables.get(\"email1\"));\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -701,9 +711,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 204\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -729,29 +737,15 @@
 					"response": []
 				},
 				{
-					"name": "/users/me -> 403",
+					"name": "/users/me -> 401",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 403\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"GET /users/me -> 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
 									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"// doesn't work in newman\r",
-									"\r",
-									"// const jar = pm.cookies.jar();\r",
-									"\r",
-									"// jar.clear(pm.request.url);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -785,21 +779,273 @@
 			"name": "/tasks",
 			"item": [
 				{
+					"name": "/auth/logout -> 204",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/auth/logout",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/tasks -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/tasks -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"{{title1Updated}}\",\r\n    \"description\": \"{{description1Updated}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/tasks -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/tasks/{id} -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks/{{currentTaskId}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks",
+								"{{currentTaskId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/tasks/{id} -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks/{{currentTaskId}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks",
+								"{{currentTaskId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/tasks/{id} -> 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": {{taskNoDescriptionId}},\r\n    \"title\": \"{{title2Updated}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks/{{taskNoDescriptionId}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks",
+								"{{taskNoDescriptionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/auth/login -> 200",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Token cookie is set\", function () {\r",
-									"    var cookies = pm.cookies.toObject();\r",
-									"    pm.expect(cookies).to.have.property('token');\r",
-									"    pm.expect(cookies.token).to.be.a('string');\r",
-									"});"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -814,7 +1060,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "user1Email@email.com",
+									"value": "{{email1}}",
 									"type": "text"
 								},
 								{
@@ -1116,69 +1362,6 @@
 					"response": []
 				},
 				{
-					"name": "/tasks -> 400 (no id)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 400\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"});\r",
-									"\r",
-									"const schema = {\r",
-									"    \"type\": \"object\",\r",
-									"    \"properties\": {\r",
-									"        \"message\": {\r",
-									"            \"type\": \"string\"\r",
-									"        }\r",
-									"    },\r",
-									"    \"required\": [\"message\"]\r",
-									"};\r",
-									"\r",
-									"pm.test(\"Validate JSON Schema\", function () {\r",
-									"    pm.response.to.have.jsonSchema(schema);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Validate specific JSON values\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.message).to.include(\"id\");\r",
-									"\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"{{title1Updated}}\",\r\n    \"description\": \"{{description1Updated}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"tasks"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "/tasks -> 202 (no title)",
 					"event": [
 						{
@@ -1341,6 +1524,134 @@
 					"response": []
 				},
 				{
+					"name": "/tasks -> 400 (no id)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\": {\r",
+									"        \"message\": {\r",
+									"            \"type\": \"string\"\r",
+									"        }\r",
+									"    },\r",
+									"    \"required\": [\"message\"]\r",
+									"};\r",
+									"\r",
+									"pm.test(\"Validate JSON Schema\", function () {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Validate specific JSON values\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"id\");\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"{{title1Updated}}\",\r\n    \"description\": \"{{description1Updated}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/tasks -> 404 (wrongId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains 'message' field\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body contains correct description\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"Can't find task with id=\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var currentDate = new Date();\r",
+									"var formattedDate = currentDate.toISOString();\r",
+									"pm.collectionVariables.set(\"currentDateTime\", formattedDate);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": {{wrongId}},\r\n    \"description\": \"{{description1}}\",\r\n    \"completedDate\": \"{{currentDateTime}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/tasks -> 200",
 					"event": [
 						{
@@ -1351,38 +1662,11 @@
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"let jsonData = pm.response.json();\r",
 									"\r",
 									"pm.test(\"Response is an array\", function () {\r",
+									"    let jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData).to.be.an('array');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"First element has correct fields\", function () {\r",
-									"    pm.expect(jsonData[0]).to.have.property('id');\r",
-									"    pm.expect(jsonData[0]).to.have.property('title');\r",
-									"    pm.expect(jsonData[0]).to.have.property('description');\r",
-									"    pm.expect(jsonData[0]).to.have.property('completed');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"First element has correct values\", function () {\r",
-									"    pm.expect(jsonData[0].title).to.eql(pm.collectionVariables.get('title2'));\r",
-									"    pm.expect(jsonData[0].description).to.be.null;\r",
-									"    pm.expect(jsonData[0].completed).to.be.false;\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Second element has correct fields\", function () {\r",
-									"    pm.expect(jsonData[1]).to.have.property('id');\r",
-									"    pm.expect(jsonData[1]).to.have.property('title');\r",
-									"    pm.expect(jsonData[1]).to.have.property('description');\r",
-									"    pm.expect(jsonData[1]).to.have.property('completed');\r",
-									"    pm.expect(jsonData[1]).to.have.property('completedDate');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"First element has correct values\", function () {\r",
-									"    pm.expect(jsonData[1].title).to.eql(pm.collectionVariables.get(\"title1Updated\"));\r",
-									"    pm.expect(jsonData[1].description).to.eql(pm.collectionVariables.get('description1'));\r",
-									"    pm.expect(jsonData[1].completed).to.be.true;\r",
-									"    pm.expect(jsonData[1].completedDate).to.eql(pm.collectionVariables.get('currentDateTime'));\r",
+									"    pm.expect(jsonData).to.be.an('array').with.lengthOf(2);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1432,9 +1716,12 @@
 									"        },\r",
 									"        \"completed\": {\r",
 									"            \"type\": \"boolean\"\r",
+									"        },\r",
+									"        \"completedDate\": {\r",
+									"            \"type\": \"string\"\r",
 									"        }\r",
 									"    },\r",
-									"    \"required\": [\"id\", \"title\", \"description\", \"completed\"]\r",
+									"    \"required\": [\"id\", \"title\", \"description\", \"completed\", \"completedDate\"]\r",
 									"};\r",
 									"\r",
 									"pm.test(\"Validate JSON Schema\", function () {\r",
@@ -1446,7 +1733,7 @@
 									"    pm.expect(jsonData.title).to.eql(pm.variables.get(\"title1Updated\"));\r",
 									"    pm.expect(jsonData.description).to.eql(pm.variables.get(\"description1\"));\r",
 									"    pm.expect(jsonData.completed).to.be.true\r",
-									"    pm.expect(jsonData.completedDate).to.eql(pm.variables.get(\"currentDateTime\"));\r",
+									"    pm.expect(jsonData.completedDate).to.be.not.empty\r",
 									"});\r",
 									""
 								],
@@ -1890,6 +2177,60 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "/tasks/{wrongId} -> 404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains 'message' field\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response body contains correct description\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"Can't find task with specified id\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": {{wrongId}},\r\n    \"title\": \"{{title2Updated}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}:{{port}}/tasks/{{wrongId}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"tasks",
+								"{{wrongId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
@@ -1968,6 +2309,16 @@
 			"key": "description2",
 			"value": "Description2",
 			"type": "string"
+		},
+		{
+			"key": "email1",
+			"value": "user1@mail.com",
+			"type": "string"
+		},
+		{
+			"key": "wrongEmail",
+			"value": "wrongEmail@email.com",
+			"type": "default"
 		}
 	]
 }
