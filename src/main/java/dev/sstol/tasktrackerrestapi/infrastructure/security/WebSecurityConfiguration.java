@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
@@ -65,6 +66,7 @@ public class WebSecurityConfiguration {
           .deleteCookies("token")
         )
         .addFilterBefore(jwtAuthenticationFilter, LogoutFilter.class)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 //        .csrf((csrf) -> csrf.ignoringRequestMatchers("/users"))
         .build();
    }
