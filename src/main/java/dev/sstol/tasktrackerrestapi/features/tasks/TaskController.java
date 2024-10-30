@@ -1,7 +1,7 @@
 package dev.sstol.tasktrackerrestapi.features.tasks;
 
 import dev.sstol.tasktrackerrestapi.features.users.User;
-import dev.sstol.tasktrackerrestapi.infrastructure.api.BadRequestException400;
+import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.BadRequestException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/tasks")
 @AllArgsConstructor
-public class TaskRestController {
+public class TaskController {
    private final TaskService service;
 
    @GetMapping
@@ -45,7 +45,7 @@ public class TaskRestController {
    @ResponseStatus(HttpStatus.CREATED)
    TaskDto addTask(@RequestBody NewTaskDto newTaskDto, Authentication authentication) {
       if (Strings.isBlank(newTaskDto.title())) {
-         throw new BadRequestException400("You should specify title");
+         throw new BadRequestException("You should specify title");
       }
       User user = (User) authentication.getPrincipal();
       return service.addTask(newTaskDto, user.getId());
@@ -55,7 +55,7 @@ public class TaskRestController {
    @ResponseStatus(HttpStatus.ACCEPTED)
    TaskDto updateTask(@RequestBody TaskDto taskDto) {
       if (taskDto.id() == null) {
-         throw new BadRequestException400("You need to specify id");
+         throw new BadRequestException("You need to specify id");
       }
       return service.updateTask(taskDto);
    }
@@ -66,7 +66,7 @@ public class TaskRestController {
                      @RequestBody TaskDto taskDto,
                      Authentication authentication) {
       if (!id.equals(taskDto.id())) {
-         throw new BadRequestException400("Task id in the path isn't equal task id in the request body");
+         throw new BadRequestException("Task id in the path isn't equal task id in the request body");
       }
       User principal = (User) authentication.getPrincipal();
       return service.patchTask(taskDto, principal.getId());

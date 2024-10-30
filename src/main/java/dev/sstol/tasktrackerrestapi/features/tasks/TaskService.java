@@ -3,7 +3,6 @@ package dev.sstol.tasktrackerrestapi.features.tasks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.sstol.tasktrackerrestapi.features.users.User;
-import dev.sstol.tasktrackerrestapi.infrastructure.api.BadRequestException400;
 import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.NotFoundException;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import static dev.sstol.tasktrackerrestapi.features.tasks.TaskRoutingMessageTypes.TASK_CREATED_QUEUE_NAME;
 import static dev.sstol.tasktrackerrestapi.features.tasks.TaskRoutingMessageTypes.TASK_UPDATED_QUEUE_NAME;
@@ -107,7 +105,7 @@ public class TaskService {
    @Transactional
    public TaskDto updateTask(TaskDto taskDto) {
       Task task = repository.findById(taskDto.id())
-        .orElseThrow(() -> new BadRequestException400("You are trying to update a non-existent task"));
+        .orElseThrow(() -> new NotFoundException("Can't find task with id=" + taskDto.id()));
       task.setTitle(Strings.isBlank(taskDto.title()) ? task.getTitle() : taskDto.title());
       task.setDescription(taskDto.description() == null ? task.getDescription() : taskDto.description());
       task.setCompleted(taskDto.completedDate() != null || task.getCompletedDate() != null);
