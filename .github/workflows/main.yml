@@ -3,6 +3,19 @@ name: CD pipeline
 on: ["push"]
 
 jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run smoke tests with uber jar
+        run: |
+          docker compose -f docker-compose-tests.yaml up --build --abort-on-container-exit
+          docker compose -f docker-compose-tests.yaml down --volumes --remove-orphans
+      - name: Run smoke tests with layered jar
+        run: |
+          docker compose up --build --abort-on-container-exit
+          docker compose down --volumes --remove-orphans
   build:
     runs-on: ubuntu-latest
     steps:
