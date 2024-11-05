@@ -59,7 +59,7 @@ To run unit tests:
 ## Automatic Smoke Tests (newman)
 Run smoke tests using docker compose:
 ```shell
-docker compose -f docker-compose-tests.yaml up --build
+docker compose -f docker-compose-tests.yaml up --build  --remove-orphans -V
 ```
 
 # Clean database
