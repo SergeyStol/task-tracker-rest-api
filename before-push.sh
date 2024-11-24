@@ -5,12 +5,12 @@ echo "**************************************************************************
 echo "1. Smoke tests using docker-compose.yaml file and Dockerfile with layered jar --> start"
 echo "***************************************************************************************"
 echo
-docker compose down --volumes
+docker compose --profile app down --volumes
 docker compose up -d app --build -V
 docker compose exec postgres psql -U postgres -d tasktrackerrestapi -f ./scripts/cleandb.sql
 docker compose up newman --exit-code-from newman -V
 NEWMAN_EXIT_CODE=$?
-docker compose down --volumes
+docker compose --profile app down --volumes
 echo
 echo "****************************************************************************************"
 echo "1. Smoke tests using docker-compose.yaml file and Dockerfile with layered jar --> finish"

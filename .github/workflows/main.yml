@@ -14,8 +14,8 @@ jobs:
           docker compose -f docker-compose-tests.yaml down --volumes --remove-orphans
       - name: Run smoke tests with layered jar
         run: |
-          docker compose up --build --abort-on-container-exit
-          docker compose down --volumes --remove-orphans
+          docker compose up newman --build --abort-on-container-exit --exit-code-from newman -V
+          docker compose --profile app down --volumes --remove-orphans
   maven-tests:
     runs-on: ubuntu-latest
     steps:

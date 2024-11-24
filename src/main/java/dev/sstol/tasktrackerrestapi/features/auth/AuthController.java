@@ -1,6 +1,5 @@
 package dev.sstol.tasktrackerrestapi.features.auth;
 
-import dev.sstol.tasktrackerrestapi.features.users.User;
 import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.BadRequestException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

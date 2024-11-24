@@ -24,6 +24,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    profiles:
+      - app
   postgres:
     image: postgres:17.0
     restart: "no"
@@ -47,6 +49,9 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 5
+    profiles:
+      - infra
+      - app
   rabbitmq:
     image: rabbitmq:4.0.2-management
     restart: "no"
@@ -63,6 +68,50 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 5
+    profiles:
+      - infra
+      - app
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    restart: "no"
+    command:
+      - "--web.enable-lifecycle"
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    profiles:
+      - infra
+  grafana:
+    image: grafana/grafana:11.3.0
+    restart: "no"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    healthcheck:
+      test: curl --fail -s http://localhost:3000/api/health || exit 1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    profiles:
+      - infra
   newman:
     image: postman/newman
     volumes:
@@ -81,10 +130,15 @@ services:
     depends_on:
       app:
         condition: service_healthy
+    profiles:
+      - test
+      - app
 volumes:
   postgres_data:
   pgadmin_data:
   rabbitmq_data:
+  prometheus_data:
+  grafana_data:
 
 secrets:
   db-password:
