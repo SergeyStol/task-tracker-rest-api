@@ -55,6 +55,10 @@ public class UserService implements UserDetailsService {
       }
    }
 
+   public long count() {
+      return repo.count();
+   }
+
    private void validate(NewUserDto newUserDto) {
       if (Strings.isBlank(newUserDto.email())) {
          throw new IllegalArgumentException("Email is empty or absent.");

@@ -133,4 +133,8 @@ public class TaskService {
    public void delete(Long taskId, Long principalId) {
       repository.deleteTaskByIdAndOwnerId(taskId, principalId);
    }
+
+   public long count() {
+      return repository.count();
+   }
 }
