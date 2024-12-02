@@ -22,4 +22,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
    @Query("DELETE FROM Task t WHERE t.id = :id AND t.owner.id = :ownerId")
    @Transactional
    void deleteTaskByIdAndOwnerId(@Param("id") Long id, @Param("ownerId") Long ownerId);
+
+   @Query("SELECT count(*) FROM Task t WHERE t.completed = false AND t.completedDate IS NULL")
+   long countOpenedTasks();
+
+   @Query("SELECT count(*) FROM Task t WHERE t.completed = true OR t.completedDate IS NOT NULL")
+   long countCompletedTasks();
 }
