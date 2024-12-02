@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -18,7 +19,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
-import static dev.sstol.tasktrackerrestapi.features.tasks.TaskRoutingMessageTypes.TASK_CREATED_QUEUE_NAME;
 import static dev.sstol.tasktrackerrestapi.features.tasks.TaskRoutingMessageTypes.TASK_UPDATED_QUEUE_NAME;
 import static dev.sstol.tasktrackerrestapi.infrastructure.rabbitmq.RabbitMQConfig.EXCHANGE_NAME;
 
@@ -26,8 +26,9 @@ import static dev.sstol.tasktrackerrestapi.infrastructure.rabbitmq.RabbitMQConfi
  * @author Sergey Stol
  * 2024-10-10
  */
-@Service
+
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class TaskService {
 
@@ -36,6 +37,7 @@ public class TaskService {
    private final EntityManager entityManager;
    private final RabbitTemplate rabbitTemplate;
    private final ObjectMapper objectMapper;
+   private final ApplicationEventPublisher eventPublisher;
 
    @Transactional
    public TaskDto addTask(NewTaskDto newTaskDto, Long ownerId) {
@@ -43,20 +45,8 @@ public class TaskService {
       Task newTask = mapper.toEntity(newTaskDto);
       newTask.setOwner(taskOwner);
       Task task = repository.save(newTask);
-      notify(newTask);
+      eventPublisher.publishEvent(new AddNewTaskEvent(this, task));
       return mapper.toDto(task);
-   }
-
-   private void notify(Task newTask) {
-      record TaskSchedulerDto
-         (Long id, String owner, String title, Timestamp completedDate){};
-      var taskSchedulerDto = new TaskSchedulerDto(newTask.getId(),
-        newTask.getOwner().getEmail(), newTask.getTitle(), newTask.getCompletedDate());
-      try {
-         rabbitTemplate.convertAndSend(EXCHANGE_NAME, TASK_CREATED_QUEUE_NAME, objectMapper.writeValueAsString(taskSchedulerDto));
-      } catch (JsonProcessingException e) {
-         throw new RuntimeException(e);
-      }
    }
 
    public List<TaskDto> findAllByOwnerId(Long id) {
@@ -134,7 +124,15 @@ public class TaskService {
       repository.deleteTaskByIdAndOwnerId(taskId, principalId);
    }
 
-   public long count() {
+   public long totalTasksCount() {
       return repository.count();
+   }
+
+   public long totalOpenedTasksCount() {
+      return repository.countOpenedTasks();
+   }
+
+   public long totalCompletedTasksCount() {
+      return repository.countCompletedTasks();
    }
 }
