@@ -52,6 +52,7 @@ services:
     profiles:
       - infra
       - app
+
   rabbitmq:
     image: rabbitmq:4.0.2-management
     restart: "no"

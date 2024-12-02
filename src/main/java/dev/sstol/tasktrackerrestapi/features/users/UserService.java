@@ -1,21 +1,18 @@
 package dev.sstol.tasktrackerrestapi.features.users;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.sstol.tasktrackerrestapi.features.auth.NewUserDto;
-import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.NotFoundException;
 import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.AlreadyExistsException;
+import dev.sstol.tasktrackerrestapi.infrastructure.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import static dev.sstol.tasktrackerrestapi.infrastructure.rabbitmq.RabbitMQConfig.EXCHANGE_NAME;
 
 /**
  * @author Sergey Stol
@@ -25,12 +22,10 @@ import static dev.sstol.tasktrackerrestapi.infrastructure.rabbitmq.RabbitMQConfi
 @RequiredArgsConstructor
 @Slf4j
 public class UserService implements UserDetailsService {
-
    private final UserRepository repo;
    private final UserMapper mapper;
-   private final ObjectMapper objectMapper;
    private final PasswordEncoder passwordEncoder;
-   private final RabbitTemplate rabbitTemplate;
+   private final ApplicationEventPublisher eventPublisher;
 
    public User save(NewUserDto newUserDto) {
       validate(newUserDto);
@@ -42,8 +37,7 @@ public class UserService implements UserDetailsService {
          User savedUser = repo.save(user);
          log.info("User {} saved to database. id={} has been assigned", savedUser.getEmail(), savedUser.getId());
          log.info("Sending notification to other services (user={})", user.getEmail());
-         rabbitTemplate.convertAndSend(EXCHANGE_NAME, "USER_CREATED",
-           objectMapper.writeValueAsString(mapper.toDto(user)));
+         eventPublisher.publishEvent(new AddNewUserEvent(this, mapper.toDto(user)));
          log.info("Notification had been sent successfully (user={})", savedUser.getEmail());
          return savedUser;
       } catch (DataIntegrityViolationException e) {
